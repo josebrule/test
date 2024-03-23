@@ -127,19 +127,23 @@ The codebase is a RESTful API built with FastAPI. It provides endpoints for mana
 
 # Endpoints
 # Customers
+```
 /customers/List: Retrieves a list of all customers.
 /customers/Update: Updates a customer's information.
 /customers/Delete: Deletes a customer.
 /customers/Create: Creates a new customer.
 /customers/Retrieve: Retrieves a specific customer.
+```
 These endpoints allow you to interact with the customer data stored in the database.
 
 # Loans
+```
 /loans/List: Retrieves a list of all loans.
 /loans/Update: Updates a loan's information.
 /loans/Delete: Deletes a loan.
 /loans/Create: Creates a new loan.
 /loans/Retrieve: Retrieves a specific loan.
+```
 These endpoints allow you to interact with the loan data stored in the database.
 
 # Database
@@ -150,6 +154,8 @@ Unit tests are included in the src/api/v1/costumers/tests/ and src/api/v1/loans/
 
 # Installation
 Clone the repository.
-Install the required dependencies with pip install -r requirements.txt.
-Run the API with uvicorn main:app --reload.
+Ah, got it! Here's the updated installation section that includes using the Makefile:
+Run make app to build the Docker image and start the API container.
+The API will be available at http://0.0.0.0:9000.
+Make sure you have Docker and Docker Compose installed on your machine to run the Makefile targets.
 
