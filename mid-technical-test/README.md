@@ -122,3 +122,34 @@ Esto iniciará los contenedores de FastAPI y PostgreSQL en segundo plano.
 - `README.md`: Documentación del proyecto.
 - `docker-compose.yml`: Archivo de configuración para ejecutar la aplicación con Docker Compose.
 - `poetry.lock y pyproject.toml`: Archivos generados por Poetry para manejar las dependencias del proyecto.
+Overview
+The codebase is a RESTful API built with FastAPI. It provides endpoints for managing customers and loans.
+
+# Endpoints
+# Customers
+/customers/List: Retrieves a list of all customers.
+/customers/Update: Updates a customer's information.
+/customers/Delete: Deletes a customer.
+/customers/Create: Creates a new customer.
+/customers/Retrieve: Retrieves a specific customer.
+These endpoints allow you to interact with the customer data stored in the database.
+
+# Loans
+/loans/List: Retrieves a list of all loans.
+/loans/Update: Updates a loan's information.
+/loans/Delete: Deletes a loan.
+/loans/Create: Creates a new loan.
+/loans/Retrieve: Retrieves a specific loan.
+These endpoints allow you to interact with the loan data stored in the database.
+
+# Database
+The API uses a SQLite database for storing customer and loan data. The database models are defined in db/models.py.
+
+# Testing
+Unit tests are included in the src/api/v1/costumers/tests/ and src/api/v1/loans/tests/ directories. You can run the tests using pytest.
+
+# Installation
+Clone the repository.
+Install the required dependencies with pip install -r requirements.txt.
+Run the API with uvicorn main:app --reload.
+
