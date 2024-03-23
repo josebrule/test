@@ -1,0 +1,190 @@
+{
+	"info": {
+		"_postman_id": "dab8682e-3579-45f9-be3e-a0e26ea9b5f4",
+		"name": "Curso Python Docker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "20322297",
+		"_collection_link": "https://interstellar-star-80063.postman.co/workspace/0108710f-318b-4f6f-bc3b-58350839ed59/collection/20322297-dab8682e-3579-45f9-be3e-a0e26ea9b5f4?action=share&source=collection_link&creator=20322297"
+	},
+	"item": [
+		{
+			"name": "Loan",
+			"item": [
+				{
+					"name": "http://0.0.0.0:9000/v1/loans/Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://0.0.0.0:9000/v1/loans/Create"
+					},
+					"response": []
+				},
+				{
+					"name": "http://0.0.0.0:9000/v1/loans/List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://0.0.0.0:9000/v1/loans/List"
+					},
+					"response": []
+				},
+				{
+					"name": "http://0.0.0.0:9000/v1/loans/Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://0.0.0.0:9000/v1/loans/Update"
+					},
+					"response": []
+				},
+				{
+					"name": "http://0.0.0.0:9000/v1/loans/Retrieve",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://0.0.0.0:9000/v1/loans/Retrieve"
+					},
+					"response": []
+				},
+				{
+					"name": "http://0.0.0.0:9000/v1/loans/Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"loan_id\":\"c0497591-28c0-45ed-b562-069f31d49900\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://0.0.0.0:9000/v1/loans/Delete"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "http://0.0.0.0:9000/v1/customers/Create?username=Carlos&email=carlos%40gmail.com",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://0.0.0.0:9000/v1/customers/Create?username=Carlos&email=carlos%40gmail.com",
+					"protocol": "http",
+					"host": [
+						"0",
+						"0",
+						"0",
+						"0"
+					],
+					"port": "9000",
+					"path": [
+						"v1",
+						"customers",
+						"Create"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "Carlos"
+						},
+						{
+							"key": "email",
+							"value": "carlos%40gmail.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://0.0.0.0:9000/v1/customers/List",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": "http://0.0.0.0:9000/v1/customers/List"
+			},
+			"response": []
+		},
+		{
+			"name": "http://0.0.0.0:9000/v1/customers/Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": "http://0.0.0.0:9000/v1/customers/Delete"
+			},
+			"response": []
+		},
+		{
+			"name": "http://0.0.0.0:9000/v1/customers/Update",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": "http://0.0.0.0:9000/v1/customers/Update"
+			},
+			"response": []
+		},
+		{
+			"name": "http://0.0.0.0:9000/v1/customers/Retrieve",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": "http://0.0.0.0:9000/v1/customers/Retrieve"
+			},
+			"response": []
+		}
+	]
+}
