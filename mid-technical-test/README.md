@@ -41,12 +41,6 @@ make app
 
 Esto iniciará los contenedores de FastAPI y PostgreSQL en segundo plano.
 
-
-### Accede a FastAPI en tu navegador:
-- FastAPI: http://localhost:8000
-- Documentación Swagger de FastAPI: http://localhost:8000/docs
-- Documentación ReDoc de FastAPI: http://localhost:8000/redoc
-
 ## Estructura del proyecto
 
 ```
@@ -158,4 +152,6 @@ Ah, got it! Here's the updated installation section that includes using the Make
 Run make app to build the Docker image and start the API container.
 The API will be available at http://0.0.0.0:9000.
 Make sure you have Docker and Docker Compose installed on your machine to run the Makefile targets.
+
+The Postman collection file to run this repository is left as Customer.postman_collection.json. You can also go to this URL http://0.0.0.0:9000/docs#/ to test the application.
 
