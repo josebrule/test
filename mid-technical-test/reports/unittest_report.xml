@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="7.103" timestamp="2024-03-22T23:46:21.076904" hostname="7f4f4b544e1d"><testcase classname="src.api.v1.costumers.tests.test_crud.TestUserFunctions" name="test_create_user" time="0.167"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation &quot;customers&quot; does not exist&#10;LINE 1: INSERT INTO customers (full_name, email, id, created, modifi...&#10;                    ^&#10;&#10;[SQL: INSERT INTO customers (full_name, email, id, created, modified) VALUES (%(full_name)s, %(email)s, %(id)s::UUID, %(created)s, %(modified)s)]&#10;[parameters: {'full_name': 'John Doe', 'email': 'john@example.com', 'id': UUID('4d19ca78-87f0-4365-b609-b8f0a370466a'), 'created': datetime.datetime(2024, 3, 22, 17, 46, 24, 305409, tzinfo=&lt;DstTzInfo 'America/Mexico_City' CST-1 day, 18:00:00 STD&gt;), 'modified': datetime.datetime(2024, 3, 22, 17, 46, 24, 335414, tzinfo=&lt;DstTzInfo 'America/Mexico_City' CST-1 day, 18:00:00 STD&gt;)}]&#10;(Background on this error at: https://sqlalche.me/e/20/f405)">self = &lt;sqlalchemy.engine.base.Connection object at 0x7fdb7e81f860&gt;
+dialect = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e874560&gt;
+statement = &lt;sqlalchemy.dialects.postgresql.base.PGCompiler object at 0x7fdb7ede8860&gt;
+parameters = [{'created': datetime.datetime(2024, 3, 22, 17, 46, 24, 305409, tzinfo=&lt;DstTzInfo 'America/Mexico_City' CST-1 day, 18:... STD&gt;), 'email': 'john@example.com', 'full_name': 'John Doe', 'id': UUID('4d19ca78-87f0-4365-b609-b8f0a370466a'), ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -&gt; CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+&gt;                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1970: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+cursor = &lt;cursor object at 0x7fdb7e87c220; closed: -1&gt;
+statement = 'INSERT INTO customers (full_name, email, id, created, modified) VALUES (%(full_name)s, %(email)s, %(id)s::UUID, %(created)s, %(modified)s)'
+parameters = {'created': datetime.datetime(2024, 3, 22, 17, 46, 24, 305409, tzinfo=&lt;DstTzInfo 'America/Mexico_City' CST-1 day, 18:00:00 STD&gt;), 'email': 'john@example.com', 'full_name': 'John Doe', 'id': UUID('4d19ca78-87f0-4365-b609-b8f0a370466a'), ...}
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e874560&gt;
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+&gt;       cursor.execute(statement, parameters)
+E       psycopg2.errors.UndefinedTable: relation "customers" does not exist
+E       LINE 1: INSERT INTO customers (full_name, email, id, created, modifi...
+E                           ^
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+self = &lt;src.api.v1.costumers.tests.test_crud.TestUserFunctions testMethod=test_create_user&gt;
+
+    def test_create_user(self):
+        with patch('db.session.use_session') as mock_session:
+            mock_add = MagicMock()
+            mock_commit = MagicMock()
+            mock_session.return_value.__enter__.return_value.add = mock_add
+            mock_session.return_value.__enter__.return_value.commit = mock_commit
+&gt;           user = create_user("John Doe", "john@example.com")
+
+src/api/v1/costumers/tests/test_crud.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/api/v1/costumers/crud.py:15: in create_user
+    session.commit()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1972: in commit
+    trans.commit(_to_root=True)
+&lt;string&gt;:2: in commit
+    ???
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1257: in commit
+    self._prepare_impl()
+&lt;string&gt;:2: in _prepare_impl
+    ???
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py:139: in _go
+    ret_value = fn(self, *arg, **kw)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:1232: in _prepare_impl
+    self.session.flush()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4296: in flush
+    self._flush(objects)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4431: in _flush
+    with util.safe_reraise():
+/usr/local/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py:146: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:4392: in _flush
+    flush_context.execute()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:466: in execute
+    rec.execute(self)
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py:642: in execute
+    util.preloaded.orm_persistence.save_obj(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:93: in save_obj
+    _emit_insert_statements(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py:1233: in _emit_insert_statements
+    result = connection.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1421: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:514: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1849: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1989: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2356: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1970: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+cursor = &lt;cursor object at 0x7fdb7e87c220; closed: -1&gt;
+statement = 'INSERT INTO customers (full_name, email, id, created, modified) VALUES (%(full_name)s, %(email)s, %(id)s::UUID, %(created)s, %(modified)s)'
+parameters = {'created': datetime.datetime(2024, 3, 22, 17, 46, 24, 305409, tzinfo=&lt;DstTzInfo 'America/Mexico_City' CST-1 day, 18:00:00 STD&gt;), 'email': 'john@example.com', 'full_name': 'John Doe', 'id': UUID('4d19ca78-87f0-4365-b609-b8f0a370466a'), ...}
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e874560&gt;
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+&gt;       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "customers" does not exist
+E       LINE 1: INSERT INTO customers (full_name, email, id, created, modifi...
+E                           ^
+E       
+E       [SQL: INSERT INTO customers (full_name, email, id, created, modified) VALUES (%(full_name)s, %(email)s, %(id)s::UUID, %(created)s, %(modified)s)]
+E       [parameters: {'full_name': 'John Doe', 'email': 'john@example.com', 'id': UUID('4d19ca78-87f0-4365-b609-b8f0a370466a'), 'created': datetime.datetime(2024, 3, 22, 17, 46, 24, 305409, tzinfo=&lt;DstTzInfo 'America/Mexico_City' CST-1 day, 18:00:00 STD&gt;), 'modified': datetime.datetime(2024, 3, 22, 17, 46, 24, 335414, tzinfo=&lt;DstTzInfo 'America/Mexico_City' CST-1 day, 18:00:00 STD&gt;)}]
+E       (Background on this error at: https://sqlalche.me/e/20/f405)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: ProgrammingError</failure></testcase><testcase classname="src.api.v1.costumers.tests.test_crud.TestUserFunctions" name="test_get_user" time="0.010"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation &quot;customers&quot; does not exist&#10;LINE 2: FROM customers &#10;             ^&#10;&#10;[SQL: SELECT customers.full_name AS customers_full_name, customers.email AS customers_email, customers.id AS customers_id, customers.created AS customers_created, customers.modified AS customers_modified &#10;FROM customers &#10;WHERE customers.id = %(id_1)s::UUID &#10; LIMIT %(param_1)s]&#10;[parameters: {'id_1': '988350d9-2018-4fe2-9dd4-222daf692ab5', 'param_1': 1}]&#10;(Background on this error at: https://sqlalche.me/e/20/f405)">self = &lt;sqlalchemy.engine.base.Connection object at 0x7fdb7e8c19d0&gt;
+dialect = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e8c1f40&gt;
+statement = &lt;sqlalchemy.dialects.postgresql.base.PGCompiler object at 0x7fdb7e8c1af0&gt;
+parameters = [{'id_1': '988350d9-2018-4fe2-9dd4-222daf692ab5', 'param_1': 1}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -&gt; CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+&gt;                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1970: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+cursor = &lt;cursor object at 0x7fdb7e87de40; closed: -1&gt;
+statement = 'SELECT customers.full_name AS customers_full_name, customers.email AS customers_email, customers.id AS customers_id, ..., customers.modified AS customers_modified \nFROM customers \nWHERE customers.id = %(id_1)s::UUID \n LIMIT %(param_1)s'
+parameters = {'id_1': '988350d9-2018-4fe2-9dd4-222daf692ab5', 'param_1': 1}
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e8c1f40&gt;
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+&gt;       cursor.execute(statement, parameters)
+E       psycopg2.errors.UndefinedTable: relation "customers" does not exist
+E       LINE 2: FROM customers 
+E                    ^
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+self = &lt;src.api.v1.costumers.tests.test_crud.TestUserFunctions testMethod=test_get_user&gt;
+
+    def test_get_user(self):
+        with patch('db.session.use_session') as mock_session:
+            mock_query = MagicMock()
+            mock_session.return_value.__enter__.return_value.query.return_value.filter.return_value.first.return_value = Customer(id=1, full_name="John Doe", email="john@example.com")
+&gt;           user = get_user("988350d9-2018-4fe2-9dd4-222daf692ab5")
+
+src/api/v1/costumers/tests/test_crud.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/api/v1/costumers/crud.py:21: in get_user
+    return session.query(Customer).filter(Customer.id == user_id).first()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/query.py:2728: in first
+    return self.limit(1)._iter().first()  # type: ignore
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/query.py:2827: in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2306: in execute
+    return self._execute_internal(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2191: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1421: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:514: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1849: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1989: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2356: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1970: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+cursor = &lt;cursor object at 0x7fdb7e87de40; closed: -1&gt;
+statement = 'SELECT customers.full_name AS customers_full_name, customers.email AS customers_email, customers.id AS customers_id, ..., customers.modified AS customers_modified \nFROM customers \nWHERE customers.id = %(id_1)s::UUID \n LIMIT %(param_1)s'
+parameters = {'id_1': '988350d9-2018-4fe2-9dd4-222daf692ab5', 'param_1': 1}
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e8c1f40&gt;
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+&gt;       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "customers" does not exist
+E       LINE 2: FROM customers 
+E                    ^
+E       
+E       [SQL: SELECT customers.full_name AS customers_full_name, customers.email AS customers_email, customers.id AS customers_id, customers.created AS customers_created, customers.modified AS customers_modified 
+E       FROM customers 
+E       WHERE customers.id = %(id_1)s::UUID 
+E        LIMIT %(param_1)s]
+E       [parameters: {'id_1': '988350d9-2018-4fe2-9dd4-222daf692ab5', 'param_1': 1}]
+E       (Background on this error at: https://sqlalche.me/e/20/f405)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: ProgrammingError</failure></testcase><testcase classname="src.api.v1.costumers.tests.test_crud.TestUserFunctions" name="test_list_users" time="0.007"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation &quot;customers&quot; does not exist&#10;LINE 2: FROM customers&#10;             ^&#10;&#10;[SQL: SELECT customers.full_name AS customers_full_name, customers.email AS customers_email, customers.id AS customers_id, customers.created AS customers_created, customers.modified AS customers_modified &#10;FROM customers]&#10;(Background on this error at: https://sqlalche.me/e/20/f405)">self = &lt;sqlalchemy.engine.base.Connection object at 0x7fdb7dbfffe0&gt;
+dialect = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e8c42c0&gt;
+statement = &lt;sqlalchemy.dialects.postgresql.base.PGCompiler object at 0x7fdb7e8c4200&gt;
+parameters = [{}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -&gt; CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+&gt;                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1970: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+cursor = &lt;cursor object at 0x7fdb7e7c0310; closed: -1&gt;
+statement = 'SELECT customers.full_name AS customers_full_name, customers.email AS customers_email, customers.id AS customers_id, customers.created AS customers_created, customers.modified AS customers_modified \nFROM customers'
+parameters = {}
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e8c42c0&gt;
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+&gt;       cursor.execute(statement, parameters)
+E       psycopg2.errors.UndefinedTable: relation "customers" does not exist
+E       LINE 2: FROM customers
+E                    ^
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+self = &lt;src.api.v1.costumers.tests.test_crud.TestUserFunctions testMethod=test_list_users&gt;
+
+    def test_list_users(self):
+        # Mocking the session and query
+        with patch('db.session.use_session') as mock_session:
+            mock_query = MagicMock()
+            mock_session.return_value.__enter__.return_value.query.return_value.all.return_value = [
+                Customer(id="988350d9-2018-4fe2-9dd4-222daf692ab5", full_name="John Doe", email="john@example.com"),
+                Customer(id="3c5672d1-a2fe-483a-a38c-a184b803b688", full_name="Jane Doe", email="jane@example.com")
+            ]
+&gt;           result = list_users()
+
+src/api/v1/costumers/tests/test_crud.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/api/v1/costumers/crud.py:6: in list_users
+    loans = session.query(Customer).all()
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/query.py:2673: in all
+    return self._iter().all()  # type: ignore
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/query.py:2827: in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2306: in execute
+    return self._execute_internal(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2191: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1421: in execute
+    return meth(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:514: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1849: in _execute_context
+    return self._exec_single_context(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1989: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2356: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1970: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGDialect_psycopg2 object at 0x7fdb81057a40&gt;
+cursor = &lt;cursor object at 0x7fdb7e7c0310; closed: -1&gt;
+statement = 'SELECT customers.full_name AS customers_full_name, customers.email AS customers_email, customers.id AS customers_id, customers.created AS customers_created, customers.modified AS customers_modified \nFROM customers'
+parameters = {}
+context = &lt;sqlalchemy.dialects.postgresql.psycopg2.PGExecutionContext_psycopg2 object at 0x7fdb7e8c42c0&gt;
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+&gt;       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "customers" does not exist
+E       LINE 2: FROM customers
+E                    ^
+E       
+E       [SQL: SELECT customers.full_name AS customers_full_name, customers.email AS customers_email, customers.id AS customers_id, customers.created AS customers_created, customers.modified AS customers_modified 
+E       FROM customers]
+E       (Background on this error at: https://sqlalche.me/e/20/f405)
+
+/usr/local/lib/python3.12/site-packages/sqlalchemy/engine/default.py:924: ProgrammingError</failure></testcase></testsuite></testsuites>
